@@ -7,7 +7,7 @@ app.use(bodyParser.json());
 
 // - Create route for creating new users
 
-app.post("/create", function(req, res){
+app.post("/user", function(req, res){
   let user = req.body;
   if (fs.readFileSync('./storage.json', 'utf-8') == "") {
     var storageArr = [];
@@ -23,14 +23,15 @@ app.post("/create", function(req, res){
 
 // - Get route for getting all users
 
-app.get('/userlist', function(req, res) {
+app.get('/user', function(req, res) {
   let nameList = JSON.parse(fs.readFileSync('./storage.json', 'utf-8'))
   res.json(nameList)
 })
 
 // - Get route for getting a user by name - Stretch changed to ID
-app.get('/:id', function(req, res) {
+app.get('/user/:id', function(req, res) {
   let userObj = JSON.parse(fs.readFileSync('./storage.json', 'utf-8'))
+  console.log(userObj);
   userObj.forEach(function(person) {
     if (person.id == Number(req.params.id)) {
       res.json(person)
@@ -40,7 +41,7 @@ app.get('/:id', function(req, res) {
   res.sendStatus(400);
 });
 // - Update route for updating a user by name - Stretch changed to ID
-app.patch('/update/:id', function(req, res) {
+app.patch('/user/:id', function(req, res) {
   let user = req.body;
   let userObj = JSON.parse(fs.readFileSync('./storage.json', 'utf-8'))
   for (let i = 0; i < userObj.length; i++) {
@@ -53,16 +54,12 @@ app.patch('/update/:id', function(req, res) {
   }
 });
 // - Delete route for deleting a user by name - Stretch updated to ID
-app.delete('/delete/:id', function(req, res) {
+app.delete('/user/:id', function(req, res) {
   let userObj = JSON.parse(fs.readFileSync('./storage.json', 'utf-8'))
-  for (let i = 0; i < userObj.length; i++) {
-      if (userObj[i].id == Number(req.params.id)) {
-        userObj.splice(i,1)
-        let userStr = JSON.stringify(userObj)
-        fs.writeFileSync("./storage.json", userStr);
-        res.send(userObj)
-      };
-  }
+  userObj = userObj.filter((obj) => obj.id !== Number(req.params.id))
+  let userStr = JSON.stringify(userObj)
+  fs.writeFileSync("./storage.json", userStr);
+  res.send(userObj)
 });
 
 app.use(function(req, res) {
